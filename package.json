@@ -1,0 +1,50 @@
+{
+  "name": "cheapie",
+  "version": "0.0.1",
+  "description": "Cheap Food for better Cooking",
+  "author": "Hackerstolz Team",
+  "license": "GPL-3.0",
+  "contributors": [
+    {
+      "name": "Cookie Engineer",
+      "email": "cookiengineer@users.no-reply.github.com"
+    }, {
+      "name": "Code Kittey",
+      "email": "codekittey@users.no-reply.github.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hackerstolz-team/cheapie.git"
+  },
+  "bin": {
+    "cnc-server": "./bin/server.js"
+  },
+  "scripts": {
+    "start": "node --harmony ./bin/server.js",
+    "prod":  "forever -c \"node --harmony\" ./bin/server.js",
+    "dev":   "babel src -d lib && node --harmony ./bin/server.js"
+  },
+  "main": "./lib/server.js",
+  "bugs": {
+    "url": "https://github.com/hackerstolz-team/cheapie/issues"
+  },
+  "keywords": [
+    "recipe",
+    "product",
+    "consumer",
+    "buy"
+  ],
+  "dependencies": {
+    "babel-polyfill": "*",
+    "koa": "next",
+    "koa-bodyparser": "next",
+    "koa-router": "next"
+  },
+  "devDependencies": {
+    "babel-cli": "*",
+    "babel-preset-es2015": "*",
+    "babel-plugin-transform-async-to-generator": "*",
+    "babel-plugin-transform-es2015-arrow-functions": "*"
+  }
+}
