@@ -3,54 +3,100 @@ var polyfill   = require('babel-polyfill');
 var Koa        = require('koa');
 var BodyParser = require('koa-bodyparser');
 var Router     = require('koa-router');
+var unirest = require('unirest');
 
 
 
 const app    = new Koa();
 const router = new Router();
 
+const API_URL = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com";
+const IMG_URL = "https://spoonacular.com/recipeImages";
+const API_KEY = "eFwDAjOB2Dmsh3lOPUJBmupT1i8Yp1wNeGsjsnQlwrJSoDJQ0L";
 
-
+app.use(BodyParser({
+  extendTypes: {
+    json: ['application/json'] // will parse application/x-javascript type body as a JSON string
+  }
+}));
+app.use(router.routes());
+app.use(router.allowedMethods());
 /*
  * ROUTES
  */
-
-router.get('/api/Status', async (ctx, next) => {
-
-	var data = null;
-	if (data !== null) {
-
-		ctx.body   = JSON.stringify(data, null, '\t');
+router.get('/api/Recipes/:name', async (ctx, next) => new Promise((resolve, reject) => {
+//https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/12435/information?includeNutrition=false")
+var recipe = "/recipes";
+//var id_int = parseInt(ctx.params.id || '', 10) | 0;
+var name = ctx.params.name;
+var url = API_URL + recipe + '/search?limitLicense=false&number=10&offset=0&query=' + name; 
+	unirest.get(url)
+	.header("X-Mashape-Key", API_KEY)
+	.end(function (result) {
+		var resultArr = [];
+		result.body["results"].forEach(function(value) {
+			var imageUrl = IMG_URL + '/' + value["image"];
+		resultArr.push({ id: value["id"], title: value["title"], minutes: value["readyInMinutes"], image: imageUrl})
+		});
+		ctx.body   = JSON.stringify(resultArr);
 		ctx.status = 200;
+		resolve();
+	});
+})
+);
 
-	} else {
 
-		ctx.body   = { message: 'Status/ not found.' };
-		ctx.status = 404;
 
-	}
+router.get('/api/Recipe/:id', async (ctx, next) => new Promise((resolve, reject) => {
+//https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/12435/information?includeNutrition=false")
+var recipe = "/recipes/";
+var includeNutrition = "?includeNutrition=false";
+//var id_int = parseInt(ctx.params.id || '', 10) | 0;
+var id = ctx.params.id;
 
-});
 
-router.post('/api/Status', async (ctx, next) => {
-
-	var result = false;
-	if (result === true) {
-
-		ctx.body   = { message: 'OK' };
+var url = API_URL + recipe + id + '/information?includeNutrition=false'; 
+	unirest.get(url)
+	.header("X-Mashape-Key", API_KEY)
+	.end(function (result) {
+		ctx.body   = result.body;
 		ctx.status = 200;
+		resolve();
+			console.log(result.status, result.headers, result.body);
+	});
+})
+);
 
-	} else {
+/*
+*
+*POST Body: ["apple", "banana", "coconut"]
+*
+*/
+router.post('/api/Recipe', async (ctx, next) => new Promise((resolve, reject) => {
+	var postBody = ctx.request.body;
+	console.log(postBody.length);
+	var ingredients ="";
+	for(var i=0; i < postBody.length; i++){
+		ingredients+= postBody[i];
+			if(i !== postBody.length-1){
+				ingredients+= "%2C";
+			}
+		}
+var recipe = "/recipes/findByIngredients?ingredients=";
+var id = ctx.params.id;
 
-		ctx.body   = { message: 'Not OK' };
-		ctx.status = 400;
 
-	}
-
-
-});
-
-
+var url = API_URL + recipe + ingredients + '&limitLicense=false&number=5&ranking=1'; 
+	unirest.get(url)
+	.header("X-Mashape-Key", API_KEY)
+	.end(function (result) {
+		ctx.body   = result.body;
+		ctx.status = 200;
+		resolve();
+			console.log(result.status, result.headers, result.body);
+	});
+})
+);
 
 /*
  * INITIALIZATION
@@ -72,9 +118,7 @@ app.use(async (ctx, next) => {
 });
 
 
-app.use(BodyParser());
-app.use(router.routes());
-app.use(router.allowedMethods());
+
 
 
 
