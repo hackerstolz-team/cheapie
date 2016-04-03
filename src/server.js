@@ -4,7 +4,7 @@ var Koa        = require('koa');
 var BodyParser = require('koa-bodyparser');
 var Router     = require('koa-router');
 var unirest = require('unirest');
-var cors = require('koa-cors');
+var cors = require('kcors');
 
 
 
@@ -16,6 +16,7 @@ const API_URL = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com";
 const IMG_URL = "https://spoonacular.com/recipeImages";
 const API_KEY = "eFwDAjOB2Dmsh3lOPUJBmupT1i8Yp1wNeGsjsnQlwrJSoDJQ0L";
 
+app.use(cors());
 app.use(BodyParser({
   extendTypes: {
     json: ['application/json'] // will parse application/x-javascript type body as a JSON string
@@ -23,7 +24,6 @@ app.use(BodyParser({
 }));
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.use(cors());
 /*
  * ROUTES
  */
@@ -40,7 +40,7 @@ if(query["intolerances"] !== undefined){
 	 intolerances = query["intolerances"];
 }
 
-var url = API_URL + recipe + '/search?intolerances=' + intolerances +'&limitLicense=false&number=10&offset=0&query=' + query["search"]; 
+var url = API_URL + recipe + '/search?intolerances=' + intolerances +'&limitLicense=false&number=10&offset=0&query=' + query["search"];
 console.log(url);
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
@@ -65,7 +65,7 @@ var recipe = "/recipes/";
 var includeNutrition = "?includeNutrition=false";
 var id = ctx.params.id;
 
-	var url = API_URL + recipe + id + '/information?includeNutrition=false'; 
+	var url = API_URL + recipe + id + '/information?includeNutrition=false';
 		unirest.get(url)
 		.header("X-Mashape-Key", API_KEY)
 		.end(function (result) {
@@ -75,7 +75,7 @@ var id = ctx.params.id;
 		ingredientsArr.push({ name: value["name"], amount: value["amount"], unit: value["unit"], unitShort: value["unitShort"]})
 		});
 
-		var recipeResult = 
+		var recipeResult =
 		{
 			id : result.body["id"],
 			preparationMinutes : result.body["preparationMinutes"],
@@ -107,7 +107,7 @@ router.post('/api/Recipe', async (ctx, next) => new Promise((resolve, reject) =>
 	var recipe = "/recipes/findByIngredients?ingredients=";
 	var id = ctx.params.id;
 
-	var url = API_URL + recipe + ingredients + '&limitLicense=false&number=5&ranking=1'; 
+	var url = API_URL + recipe + ingredients + '&limitLicense=false&number=5&ranking=1';
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {

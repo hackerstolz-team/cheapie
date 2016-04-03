@@ -38,9 +38,9 @@
   ],
   "dependencies": {
     "babel-polyfill": "*",
+    "kcors": "^2.0.0",
     "koa": "next",
     "koa-bodyparser": "next",
-    "koa-cors": "0.0.16",
     "koa-router": "next",
     "unirest": "^0.4.2"
   },
