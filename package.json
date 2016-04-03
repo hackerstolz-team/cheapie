@@ -8,7 +8,8 @@
     {
       "name": "Cookie Engineer",
       "email": "cookiengineer@users.no-reply.github.com"
-    }, {
+    },
+    {
       "name": "Code Kittey",
       "email": "codekittey@users.no-reply.github.com"
     }
@@ -22,8 +23,8 @@
   },
   "scripts": {
     "start": "node --harmony ./bin/server.js",
-    "prod":  "forever -c \"node --harmony\" ./bin/server.js",
-    "dev":   "babel src -d lib && node --harmony ./bin/server.js"
+    "prod": "forever -c \"node --harmony\" ./bin/server.js",
+    "dev": "babel src -d lib && node --harmony ./bin/server.js"
   },
   "main": "./lib/server.js",
   "bugs": {
@@ -39,7 +40,9 @@
     "babel-polyfill": "*",
     "koa": "next",
     "koa-bodyparser": "next",
-    "koa-router": "next"
+    "koa-cors": "0.0.16",
+    "koa-router": "next",
+    "unirest": "^0.4.2"
   },
   "devDependencies": {
     "babel-cli": "*",
