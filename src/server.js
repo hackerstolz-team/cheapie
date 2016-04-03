@@ -24,18 +24,27 @@ app.use(router.allowedMethods());
 /*
  * ROUTES
  */
-router.get('/api/Recipes/:name', async (ctx, next) => new Promise((resolve, reject) => {
+
+//intolerances could be: dairy, egg, gluten, peanut, sesame, seafood, shellfish, soy, sulfite, tree nut, and wheat.
+ //example http://localhost:8080/api/Recipes?search=lasagne&intolerances=eggs,gluten
+router.get('/api/Recipes', async (ctx, next) => new Promise((resolve, reject) => {
 //https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/12435/information?includeNutrition=false")
 var recipe = "/recipes";
 //var id_int = parseInt(ctx.params.id || '', 10) | 0;
-var name = ctx.params.name;
-var url = API_URL + recipe + '/search?limitLicense=false&number=10&offset=0&query=' + name; 
+var query = ctx.query;
+var intolerances = "";
+if(query["intolerances"] !== undefined){
+	 intolerances = query["intolerances"];
+}
+
+var url = API_URL + recipe + '/search?intolerances=' + intolerances +'&limitLicense=false&number=10&offset=0&query=' + query["search"]; 
+console.log(url);
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {
 		var resultArr = [];
 		result.body["results"].forEach(function(value) {
-			var imageUrl = IMG_URL + '/' + value["image"];
+		var imageUrl = IMG_URL + '/' + value["image"];
 		resultArr.push({ id: value["id"], title: value["title"], minutes: value["readyInMinutes"], image: imageUrl})
 		});
 		ctx.body   = JSON.stringify(resultArr);
@@ -51,20 +60,30 @@ router.get('/api/Recipe/:id', async (ctx, next) => new Promise((resolve, reject)
 //https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/12435/information?includeNutrition=false")
 var recipe = "/recipes/";
 var includeNutrition = "?includeNutrition=false";
-//var id_int = parseInt(ctx.params.id || '', 10) | 0;
 var id = ctx.params.id;
 
+	var url = API_URL + recipe + id + '/information?includeNutrition=false'; 
+		unirest.get(url)
+		.header("X-Mashape-Key", API_KEY)
+		.end(function (result) {
 
-var url = API_URL + recipe + id + '/information?includeNutrition=false'; 
-	unirest.get(url)
-	.header("X-Mashape-Key", API_KEY)
-	.end(function (result) {
-		ctx.body   = result.body;
+		var ingredientsArr = [];
+		result.body["extendedIngredients"].forEach(function(value) {
+		ingredientsArr.push({ name: value["name"], amount: value["amount"], unit: value["unit"], unitShort: value["unitShort"]})
+		});
+
+		var recipeResult = 
+		{
+			id : result.body["id"],
+			preparationMinutes : result.body["preparationMinutes"],
+			cookingMinutes : result.body["cookingMinutes"],
+			ingredients : ingredientsArr
+		}
+		ctx.body   = JSON.stringify(recipeResult);
 		ctx.status = 200;
 		resolve();
-			console.log(result.status, result.headers, result.body);
-	});
-})
+		});
+	})
 );
 
 /*
@@ -82,11 +101,10 @@ router.post('/api/Recipe', async (ctx, next) => new Promise((resolve, reject) =>
 				ingredients+= "%2C";
 			}
 		}
-var recipe = "/recipes/findByIngredients?ingredients=";
-var id = ctx.params.id;
+	var recipe = "/recipes/findByIngredients?ingredients=";
+	var id = ctx.params.id;
 
-
-var url = API_URL + recipe + ingredients + '&limitLicense=false&number=5&ranking=1'; 
+	var url = API_URL + recipe + ingredients + '&limitLicense=false&number=5&ranking=1'; 
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {
