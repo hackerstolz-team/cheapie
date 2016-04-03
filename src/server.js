@@ -4,11 +4,13 @@ var Koa        = require('koa');
 var BodyParser = require('koa-bodyparser');
 var Router     = require('koa-router');
 var unirest = require('unirest');
+var cors = require('koa-cors');
 
 
 
 const app    = new Koa();
 const router = new Router();
+
 
 const API_URL = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com";
 const IMG_URL = "https://spoonacular.com/recipeImages";
@@ -21,6 +23,7 @@ app.use(BodyParser({
 }));
 app.use(router.routes());
 app.use(router.allowedMethods());
+app.use(cors());
 /*
  * ROUTES
  */
