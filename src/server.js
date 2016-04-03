@@ -41,18 +41,25 @@ if(query["intolerances"] !== undefined){
 }
 
 var url = API_URL + recipe + '/search?intolerances=' + intolerances +'&limitLicense=false&number=10&offset=0&query=' + query["search"];
-console.log(url);
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {
-		var resultArr = [];
-		result.body["results"].forEach(function(value) {
-		var imageUrl = IMG_URL + '/' + value["image"];
-		resultArr.push({ id: value["id"], title: value["title"], minutes: value["readyInMinutes"], image: imageUrl})
-		});
-		ctx.body   = JSON.stringify(resultArr);
-		ctx.status = 200;
-		resolve();
+
+		if(result.body !== null && result.body !== undefined && result.body instanceof Object && results["results"] instanceof Array){
+			var resultArr = [];
+			result.body["results"].forEach(function(value) {
+			var imageUrl = IMG_URL + '/' + value["image"];
+			resultArr.push({ id: value["id"], title: value["title"], minutes: value["readyInMinutes"], image: imageUrl})
+			});
+			ctx.body   = JSON.stringify(resultArr);
+			ctx.status = 200;
+			resolve();
+		} else {
+			ctx.body   = JSON.stringify([]);
+			ctx.status = 200;
+			reject();
+		}
+		
 	});
 })
 );
@@ -69,22 +76,27 @@ var id = ctx.params.id;
 		unirest.get(url)
 		.header("X-Mashape-Key", API_KEY)
 		.end(function (result) {
+		if(result.body !== null && result.body !== undefined && result.body instanceof Object && results["results"] instanceof Array){	
+			var ingredientsArr = [];
+			result.body["extendedIngredients"].forEach(function(value) {
+			ingredientsArr.push({ name: value["name"], amount: value["amount"], unit: value["unit"], unitShort: value["unitShort"]})
+			});
 
-		var ingredientsArr = [];
-		result.body["extendedIngredients"].forEach(function(value) {
-		ingredientsArr.push({ name: value["name"], amount: value["amount"], unit: value["unit"], unitShort: value["unitShort"]})
-		});
-
-		var recipeResult =
-		{
-			id : result.body["id"],
-			preparationMinutes : result.body["preparationMinutes"],
-			cookingMinutes : result.body["cookingMinutes"],
-			ingredients : ingredientsArr
+			var recipeResult =
+			{
+				id : result.body["id"],
+				preparationMinutes : result.body["preparationMinutes"],
+				cookingMinutes : result.body["cookingMinutes"],
+				ingredients : ingredientsArr
+			}
+			ctx.body   = JSON.stringify(recipeResult);
+			ctx.status = 200;
+			resolve();
+		} else {
+			ctx.body   = JSON.stringify([]);
+			ctx.status = 200;
+			reject();
 		}
-		ctx.body   = JSON.stringify(recipeResult);
-		ctx.status = 200;
-		resolve();
 		});
 	})
 );
@@ -111,10 +123,15 @@ router.post('/api/Recipe', async (ctx, next) => new Promise((resolve, reject) =>
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {
+		if(result.body !== null && result.body !== undefined && result.body instanceof Object && results["results"] instanceof Array){	
 		ctx.body   = result.body;
 		ctx.status = 200;
 		resolve();
-			console.log(result.status, result.headers, result.body);
+			} else {
+			ctx.body   = JSON.stringify([]);
+			ctx.status = 200;
+			reject();
+		}
 	});
 })
 );
