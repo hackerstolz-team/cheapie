@@ -45,7 +45,7 @@ var url = API_URL + recipe + '/search?intolerances=' + intolerances +'&limitLice
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {
 
-		if(result.body !== null && result.body !== undefined && result.body instanceof Object && results["results"] instanceof Array){
+		if(result.body !== null && result.body !== undefined && result.body instanceof Object && result.body["results"] instanceof Array){
 			var resultArr = [];
 			result.body["results"].forEach(function(value) {
 			var imageUrl = IMG_URL + '/' + value["image"];
@@ -64,8 +64,6 @@ var url = API_URL + recipe + '/search?intolerances=' + intolerances +'&limitLice
 })
 );
 
-
-
 router.get('/api/Recipe/:id', async (ctx, next) => new Promise((resolve, reject) => {
 //https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/12435/information?includeNutrition=false")
 var recipe = "/recipes/";
@@ -76,7 +74,7 @@ var id = ctx.params.id;
 		unirest.get(url)
 		.header("X-Mashape-Key", API_KEY)
 		.end(function (result) {
-		if(result.body !== null && result.body !== undefined && result.body instanceof Object && results["results"] instanceof Array){	
+		if(result.body !== null && result.body !== undefined && result.body instanceof Object && result.body["results"] instanceof Array){	
 			var ingredientsArr = [];
 			result.body["extendedIngredients"].forEach(function(value) {
 			ingredientsArr.push({ name: value["name"], amount: value["amount"], unit: value["unit"], unitShort: value["unitShort"]})
@@ -108,8 +106,10 @@ var id = ctx.params.id;
 */
 router.post('/api/Recipe', async (ctx, next) => new Promise((resolve, reject) => {
 	var postBody = ctx.request.body;
+
 	console.log(postBody.length);
 	var ingredients ="";
+
 	for(var i=0; i < postBody.length; i++){
 		ingredients+= postBody[i];
 			if(i !== postBody.length-1){
@@ -123,7 +123,7 @@ router.post('/api/Recipe', async (ctx, next) => new Promise((resolve, reject) =>
 	unirest.get(url)
 	.header("X-Mashape-Key", API_KEY)
 	.end(function (result) {
-		if(result.body !== null && result.body !== undefined && result.body instanceof Object && results["results"] instanceof Array){	
+		if(result.body !== null && result.body !== undefined && result.body instanceof Object && result.body["results"] instanceof Array){	
 		ctx.body   = result.body;
 		ctx.status = 200;
 		resolve();
